@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.pixelthump</groupId>
-    <artifactId>tic-tac-show</artifactId>
+    <artifactId>tictacshow</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>tic-tac-show</name>
+    <name>tictacshow</name>
     <description>tic-tac-show</description>
     <properties>
         <java.version>17</java.version>
