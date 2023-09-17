@@ -39,6 +39,7 @@ public class GameLogicServiceImpl implements GameLogicService {
             try {
                 processCommand(command, state);
                 processedCommands.add(command);
+                state.setHasChanged(true);
             } catch (Exception e) {
                 processedCommands.add(command);
                 log.warn("Unable to process command={}", command);
@@ -63,5 +64,20 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processLobbyCommand(Command command, TicTacShowState state) {
 
+        if ("startSesh".equals(command.getType())) processStartSeshCommand(command, state);
+    }
+
+    private void processStartSeshCommand(Command command, TicTacShowState state) {
+
+        boolean playerIsVip = isVip(command.getPlayerName(), state);
+        if (!playerIsVip) throw new IllegalStateException();
+        if (!TicTacShowStage.LOBBY.equals(state.getCurrentStage())) throw new IllegalStateException();
+        state.setCurrentStage(TicTacShowStage.MAIN);
+        state.setHasChanged(true);
+    }
+
+    private boolean isVip(String playerName, TicTacShowState state) {
+
+        return state.getPlayers().stream().anyMatch(player -> player.getPlayerId().getPlayerName().equals(playerName) && player.getVip().equals(true));
     }
 }
