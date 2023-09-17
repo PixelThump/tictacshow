@@ -37,7 +37,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         for (Command command : commands) {
 
             try {
-                  processCommand(command,state);
+                processCommand(command, state);
                 processedCommands.add(command);
             } catch (Exception e) {
                 processedCommands.add(command);
@@ -50,7 +50,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processCommand(Command command, TicTacShowState state) {
 
-        if (state.getCurrentStage().equals(TicTacShowStage.LOBBY)){
+        if (state.getCurrentStage().equals(TicTacShowStage.LOBBY)) {
             processLobbyCommand(command, state);
         } else if (state.getCurrentStage().equals(TicTacShowStage.MAIN)) {
             processMainCommand(command, state);
@@ -58,7 +58,6 @@ public class GameLogicServiceImpl implements GameLogicService {
     }
 
     private void processMainCommand(Command command, TicTacShowState state) {
-
 
     }
 
