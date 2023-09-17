@@ -47,6 +47,7 @@ class StateServiceImplTest {
         State result = stateService.findBySeshCode(seshCode);
         verify(stateRepository, times(1)).findBySeshCode(seshCode);
         assertEquals(state, result);
+        assertTrue(state.equals(result));
     }
 
     @Test
