@@ -58,12 +58,27 @@ class GameLogicServiceImplTest {
         List<Command> commands = Collections.singletonList(startSeshCommand);
         when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode)).thenReturn(commands);
 
-        gameLogicService.processQueue(seshCode);
+        State result = gameLogicService.processQueue(seshCode);
 
-        InOrder inOrder = inOrder(stateRepository, commandRespository);
-        inOrder.verify(stateRepository, times(1)).findBySeshCode(state.getSeshCode);
-        inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode);
-        inOrder.verify(commandRespository, times(1)).deleteAll(commands);
+        assertTrue(result.getHasChanged());
+        assertEquals(TicTacShowStage.MAIN, result.getCurrentStage());
+    }
+
+    @Test
+    void processQueue_playerStartSesh_shouldNotStartSesh() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        TicTacShowPlayer vip = getVip(state);
+        Command startSeshCommand = getStartSeshCommand(vip);
+        List<Command> commands = Collections.singletonList(startSeshCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode)).thenReturn(commands);
+
+        State result = gameLogicService.processQueue(seshCode);
+
+        assertFalse(result.getHasChanged());
+        assertEquals(TicTacShowStage.LOBBY, result.getCurrentStage());
     }
 
     private TicTacShowState getLobbyState(String seshCode) {
@@ -71,6 +86,19 @@ class GameLogicServiceImplTest {
         state.setSeshCode(seshCode);
         state.setCurrentStage(TicTacShowStage.LOBBY);
         state.setPlayers(new ArrayList<>());
+        state.setMaxPlayer(5L);
+        state.setActive(true);
+        state.setHostJoined(true);
+        state.setHasChanged(false);
+        state.setSeshType("TicTacShow");
+        return state;
+    }
+
+    private TicTacShowState getMainState(String seshCode, List<TicTacShowPlayer> players) {
+        TicTacShowState state = new TicTacShowState();
+        state.setSeshCode(seshCode);
+        state.setCurrentStage(TicTacShowStage.MAIN);
+        state.setPlayers(players);
         state.setMaxPlayer(5L);
         state.setActive(true);
         state.setHostJoined(true);
