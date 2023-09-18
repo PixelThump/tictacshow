@@ -36,20 +36,19 @@ class GameLogicServiceImplTest {
     @Test
     void processQueue_shouldRetrieveStateAndCommandsAndDeleteAllCommandsAfterwards() {
 
-        TicTacShowState state = new TicTacShowState();
-        state.setSeshCode(seshCode);
-        when(stateRepository.findBySeshCode(seshCode)).thenReturn(state);
+        TicTacShowState state = getLobbyState(seshCode);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
         List<Command> commands = new ArrayList<>();
-        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode)).thenReturn(commands);
-        gameLogicService.processQueue(seshCode);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode)).thenReturn(commands);
+        gameLogicService.processQueue(state.getSeshCode);
         InOrder inOrder = inOrder(stateRepository, commandRespository);
-        inOrder.verify(stateRepository, times(1)).findBySeshCode(seshCode);
-        inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode);
+        inOrder.verify(stateRepository, times(1)).findBySeshCode(state.getSeshCode);
+        inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode);
         inOrder.verify(commandRespository, times(1)).deleteAll(commands);
     }
 
     @Test
-    void processQueue_shouldRetrieveStateAndCommandsAndDeleteAllCommandsAfterwards() {
+    void processQueue_vipStartSesh_shouldStartSesh() {
 
         TicTacShowState state = getLobbyState(seshCode);
         when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
@@ -57,13 +56,13 @@ class GameLogicServiceImplTest {
         TicTacShowPlayer vip = getVip(state);
         Command startSeshCommand = getStartSeshCommand(vip);
         List<Command> commands = Collections.singletonList(startSeshCommand);
-        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode)).thenReturn(commands);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode)).thenReturn(commands);
 
         gameLogicService.processQueue(seshCode);
 
         InOrder inOrder = inOrder(stateRepository, commandRespository);
-        inOrder.verify(stateRepository, times(1)).findBySeshCode(seshCode);
-        inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode);
+        inOrder.verify(stateRepository, times(1)).findBySeshCode(state.getSeshCode);
+        inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode);
         inOrder.verify(commandRespository, times(1)).deleteAll(commands);
     }
 
@@ -101,7 +100,7 @@ class GameLogicServiceImplTest {
     private Command getStartSeshCommand(TicTacShowPlayer player){
         Command command = new Command();
         command.setType("startSesh");
-        command.setPlayerPlayerName(player.getPlayerId().getPlayerName());
+        command.setPlayerName(player.getPlayerId().getPlayerName());
         return command;
     }
 }
