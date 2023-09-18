@@ -12,6 +12,8 @@ import org.mockito.InOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import com.pixelthump.seshtypelib.service.model.player.PlayerId;
+import com.pixelthump.seshtypelib.service.model.player.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,9 +58,9 @@ class GameLogicServiceImplTest {
         Command startSeshCommand = getStartSeshCommand(vip);
         List<Command> commands = Collections.singletonList(startSeshCommand);
         when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode)).thenReturn(commands);
-        
+
         gameLogicService.processQueue(seshCode);
-        
+
         InOrder inOrder = inOrder(stateRepository, commandRespository);
         inOrder.verify(stateRepository, times(1)).findBySeshCode(seshCode);
         inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode);
