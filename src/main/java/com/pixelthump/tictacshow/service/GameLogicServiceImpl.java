@@ -2,82 +2,106 @@ package com.pixelthump.tictacshow.service;
 import com.pixelthump.seshtypelib.repository.CommandRespository;
 import com.pixelthump.seshtypelib.repository.model.command.Command;
 import com.pixelthump.seshtypelib.service.GameLogicService;
-import com.pixelthump.seshtypelib.service.model.State;
+import com.pixelthump.tictacshow.Application;
 import com.pixelthump.tictacshow.repository.TicTacShowStateRepository;
+import com.pixelthump.tictacshow.repository.model.TicTacShowPlayer;
 import com.pixelthump.tictacshow.repository.model.TicTacShowStage;
 import com.pixelthump.tictacshow.repository.model.TicTacShowState;
-import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import com.pixelthump.seshtypelib.service.model.player.PlayerId;
+import com.pixelthump.seshtypelib.service.model.player.Player;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-@Component
-@Log4j2
-public class GameLogicServiceImpl implements GameLogicService {
+import static org.mockito.Mockito.*;
 
-    private final TicTacShowStateRepository stateRepository;
-    private final CommandRespository commandRespository;
+@SpringBootTest(classes = Application.class)
+class GameLogicServiceImplTest {
 
+    @MockBean
+    TicTacShowStateRepository stateRepository;
+    @MockBean
+    CommandRespository commandRespository;
     @Autowired
-    public GameLogicServiceImpl(TicTacShowStateRepository stateRepository, CommandRespository commandRespository) {
+    GameLogicService gameLogicService;
+    String seshCode = "abcd";
 
-        this.stateRepository = stateRepository;
-        this.commandRespository = commandRespository;
+    @Test
+    void processQueue_shouldRetrieveStateAndCommandsAndDeleteAllCommandsAfterwards() {
+
+        TicTacShowState state = new TicTacShowState();
+        state.setSeshCode(seshCode);
+        when(stateRepository.findBySeshCode(seshCode)).thenReturn(state);
+        List<Command> commands = new ArrayList<>();
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode)).thenReturn(commands);
+        gameLogicService.processQueue(seshCode);
+        InOrder inOrder = inOrder(stateRepository, commandRespository);
+        inOrder.verify(stateRepository, times(1)).findBySeshCode(seshCode);
+        inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode);
+        inOrder.verify(commandRespository, times(1)).deleteAll(commands);
     }
 
-    @Override
-    public State processQueue(String seshCode) {
+    @Test
+    void processQueue_shouldRetrieveStateAndCommandsAndDeleteAllCommandsAfterwards() {
 
-        TicTacShowState state = stateRepository.findBySeshCode(seshCode);
-        List<Command> commands = commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode());
-        List<Command> processedCommands = new ArrayList<>();
+        TicTacShowState state = getLobbyState(seshCode);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
 
-        for (Command command : commands) {
+        TicTacShowPlayer vip = getVip(state);
+        Command startSeshCommand = getStartSeshCommand(vip);
+        List<Command> commands = Collections.singletonList(startSeshCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode)).thenReturn(commands);
 
-            try {
-                processCommand(command, state);
-                processedCommands.add(command);
-                state.setHasChanged(true);
-            } catch (Exception e) {
-                processedCommands.add(command);
-                log.warn("Unable to process command={}", command);
-            }
-        }
-        commandRespository.deleteAll(processedCommands);
+        gameLogicService.processQueue(seshCode);
+
+        InOrder inOrder = inOrder(stateRepository, commandRespository);
+        inOrder.verify(stateRepository, times(1)).findBySeshCode(seshCode);
+        inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode);
+        inOrder.verify(commandRespository, times(1)).deleteAll(commands);
+    }
+
+    private TicTacShowState getLobbyState(String seshCode) {
+        TicTacShowState state = new TicTacShowState();
+        state.setSeshCode(seshCode);
+        state.setCurrentStage(TicTacShowStage.LOBBY);
+        state.setPlayers(new ArrayList<>());
+        state.setMaxPlayer(5L);
+        state.setActive(true);
+        state.setHostJoined(true);
+        state.setHasChanged(false);
+        state.setSeshType("TicTacShow");
         return state;
     }
 
-    private void processCommand(Command command, TicTacShowState state) {
-
-        if (state.getCurrentStage().equals(TicTacShowStage.LOBBY)) {
-            processLobbyCommand(command, state);
-        } else if (state.getCurrentStage().equals(TicTacShowStage.MAIN)) {
-            processMainCommand(command, state);
-        }
+    private TicTacShowPlayer getVip(TicTacShowState state){
+        TicTacShowPlayer vip = getTicTacShowPlayer(state, "vip");
+        vip.setVip(true);
+        return vip;
     }
 
-    private void processMainCommand(Command command, TicTacShowState state) {
-
+    private static TicTacShowPlayer getTicTacShowPlayer(TicTacShowState state, String playerName) {
+        TicTacShowPlayer player = new TicTacShowPlayer();
+        PlayerId playerId = new PlayerId();
+        playerId.setSeshCode = state.getSeshCode();
+        playerId.setPlayerName(playerName);
+        player.setPlayerId(playerId);
+        player.setPoints(0);
+        player.setState(state);
+        player.setVip(false);
+        return player;
     }
 
-    private void processLobbyCommand(Command command, TicTacShowState state) {
-
-        if ("startSesh".equals(command.getType())) processStartSeshCommand(command, state);
-    }
-
-    private void processStartSeshCommand(Command command, TicTacShowState state) {
-
-        boolean playerIsVip = isVip(command.getPlayerName(), state);
-        if (!playerIsVip) throw new IllegalStateException();
-        if (!TicTacShowStage.LOBBY.equals(state.getCurrentStage())) throw new IllegalStateException();
-        state.setCurrentStage(TicTacShowStage.MAIN);
-        state.setHasChanged(true);
-    }
-
-    private boolean isVip(String playerName, TicTacShowState state) {
-
-        return state.getPlayers().stream().anyMatch(player -> player.getPlayerId().getPlayerName().equals(playerName) && player.getVip().equals(true));
+    private Command getStartSeshCommand(TicTacShowPlayer player){
+        Command command = new Command();
+        command.setType("startSesh");
+        command.setPlayerName(player.getPlayerId().getPlayerName());
+        return command;
     }
 }
