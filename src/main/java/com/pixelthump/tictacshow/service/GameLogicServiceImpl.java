@@ -109,7 +109,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         else opponentTeam = state.getTeamX();
 
         int teamSizeDifference = team.getTicTacShowPlayers().size() - opponentTeam.getTicTacShowPlayers().size();
-        return teamSizeDifference <= 1 && teamSizeDifference >= -1;
+        return teamSizeDifference == 0;
     }
 
     private boolean playerIsJoined(String playerName, TicTacShowState state) {
