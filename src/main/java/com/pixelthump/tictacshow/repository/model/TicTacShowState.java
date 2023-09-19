@@ -1,8 +1,6 @@
 package com.pixelthump.tictacshow.repository.model;
 import com.pixelthump.seshtypelib.service.model.State;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Hibernate;
@@ -17,6 +15,12 @@ public class TicTacShowState extends State {
     @Enumerated
     @Column(nullable = false)
     private TicTacShowStage currentStage;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "team_x_id")
+    private Team teamX;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "team_o_id")
+    private Team teamO;
 
     @Override
     public boolean equals(Object o) {
