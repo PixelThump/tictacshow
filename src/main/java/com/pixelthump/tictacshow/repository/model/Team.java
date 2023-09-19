@@ -19,6 +19,11 @@ public class Team implements Serializable {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TicTacShowPlayer> ticTacShowPlayers = new ArrayList<>();
 
+
+    public void addPlayer(TicTacShowPlayer player){
+        ticTacShowPlayers.add(player);
+    }
+
     public List<TicTacShowPlayer> getTicTacShowPlayers() {
 
         return ticTacShowPlayers;

@@ -7,6 +7,7 @@ import com.pixelthump.seshtypelib.service.model.player.Player;
 import com.pixelthump.seshtypelib.service.model.player.PlayerId;
 import com.pixelthump.tictacshow.Application;
 import com.pixelthump.tictacshow.repository.TicTacShowStateRepository;
+import com.pixelthump.tictacshow.repository.model.Team;
 import com.pixelthump.tictacshow.repository.model.TicTacShowPlayer;
 import com.pixelthump.tictacshow.repository.model.TicTacShowStage;
 import com.pixelthump.tictacshow.repository.model.TicTacShowState;
@@ -54,6 +55,7 @@ class GameLogicServiceImplTest {
         TicTacShowState state = getLobbyState(seshCode);
         TicTacShowPlayer vip = getVip(state);
         state.getPlayers().add(vip);
+        state.getTeamO().addPlayer(vip);
         when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
 
         Command startSeshCommand = getStartSeshCommand(vip);
@@ -64,6 +66,24 @@ class GameLogicServiceImplTest {
 
         assertTrue(result.getHasChanged());
         assertEquals(TicTacShowStage.MAIN, ((TicTacShowState)result).getCurrentStage());
+    }
+
+    @Test
+    void processQueue_vipStartSesh_with1PlayerNotInTeam_shouldNotStartSesh() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        TicTacShowPlayer vip = getVip(state);
+        state.getPlayers().add(vip);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command startSeshCommand = getStartSeshCommand(vip);
+        List<Command> commands = Collections.singletonList(startSeshCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+
+        State result = gameLogicService.processQueue(seshCode);
+
+        assertFalse(result.getHasChanged());
+        assertEquals(TicTacShowStage.LOBBY, ((TicTacShowState)result).getCurrentStage());
     }
 
     @Test
@@ -93,6 +113,8 @@ class GameLogicServiceImplTest {
         state.setHostJoined(true);
         state.setHasChanged(false);
         state.setSeshType("TicTacShow");
+        state.setTeamX(new Team());
+        state.setTeamO(new Team());
         return state;
     }
 
