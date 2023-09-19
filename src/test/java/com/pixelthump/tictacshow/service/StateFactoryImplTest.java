@@ -1,5 +1,6 @@
 package com.pixelthump.tictacshow.service;
 import com.pixelthump.seshtypelib.service.StateFactory;
+import com.pixelthump.seshtypelib.service.model.State;
 import com.pixelthump.tictacshow.Application;
 import com.pixelthump.tictacshow.repository.TicTacShowStateRepository;
 import com.pixelthump.tictacshow.repository.model.TicTacShowState;
@@ -31,6 +32,12 @@ class StateFactoryImplTest {
         TicTacShowState result = (TicTacShowState) stateFactory.createSeshTypeState(seshCode);
         verify(stateRepository, times(1)).save(result);
 
+        verifyStandardFields(result);
+        verifyTeams(result);
+    }
+
+    private void verifyStandardFields(State result) {
+
         assertEquals(seshCode, result.getSeshCode());
         assertEquals("TicTacShow", result.getSeshType());
         assertNotNull(result.getPlayers());
@@ -39,7 +46,13 @@ class StateFactoryImplTest {
         assertFalse(result.getActive());
         assertFalse(result.getHasChanged());
         assertEquals(5, result.getMaxPlayer());
+    }
+
+    private static void verifyTeams(TicTacShowState result) {
+
         assertNotNull(result.getTeamO());
+        assertEquals(0, result.getTeamO().getTicTacShowPlayers().size());
         assertNotNull(result.getTeamX());
+        assertEquals(0, result.getTeamX().getTicTacShowPlayers().size());
     }
 }
