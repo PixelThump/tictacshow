@@ -190,6 +190,76 @@ class GameLogicServiceImplTest {
     }
 
     @Test
+    void processQueue_shouldMakeVip() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        TicTacShowPlayer player = getTicTacShowPlayer(state, "player");
+        state.getPlayers().add(player);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command makeVipCommand = getMakeVipCommand(player.getPlayerId().getPlayerName(), player.getPlayerId().getPlayerName());
+        List<Command> commands = Collections.singletonList(makeVipCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+
+        TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
+
+        assertTrue(result.getPlayers().get(0).getVip());
+        assertTrue(result.getHasChanged());
+    }
+
+    @Test
+    void processQueue_alreadyAVip_shouldNotMakeVip() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        TicTacShowPlayer vip = getVip(state);
+        state.getPlayers().add(vip);
+        TicTacShowPlayer player = getTicTacShowPlayer(state, "player");
+        state.getPlayers().add(player);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command makeVipCommand = getMakeVipCommand(player.getPlayerId().getPlayerName(), player.getPlayerId().getPlayerName());
+        List<Command> commands = Collections.singletonList(makeVipCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+
+        TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
+
+        assertTrue(result.getPlayers().get(0).getVip());
+        assertFalse(result.getPlayers().get(1).getVip());
+        assertFalse(result.getHasChanged());
+    }
+
+    @Test
+    void processQueue_alreadyAVip_shouldMakeSomeoneElseVip() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        TicTacShowPlayer vip = getVip(state);
+        state.getPlayers().add(vip);
+        TicTacShowPlayer player = getTicTacShowPlayer(state, "newVip");
+        state.getPlayers().add(player);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command makeVipCommand = getMakeVipCommand(vip.getPlayerId().getPlayerName(), player.getPlayerId().getPlayerName());
+        List<Command> commands = Collections.singletonList(makeVipCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+
+        TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
+
+        assertFalse(result.getPlayers().get(0).getVip());
+        assertTrue(result.getPlayers().get(1).getVip());
+        assertTrue(result.getHasChanged());
+    }
+
+    private Command getMakeVipCommand(String executingPlayer, String targetPlayer) {
+
+        Command command = new Command();
+        command.setPlayerName(executingPlayer);
+        command.setBody(targetPlayer);
+        command.setType("makeVip");
+
+        return command;
+    }
+
+    @Test
     void processQueue_UnKnownTeam_shouldNotJoinTeamO() {
 
         TicTacShowState state = getLobbyState(seshCode);
