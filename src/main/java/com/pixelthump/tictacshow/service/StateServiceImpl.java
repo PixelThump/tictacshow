@@ -107,14 +107,6 @@ public class StateServiceImpl implements StateService {
         return hostState;
     }
 
-    private ServicePlayer convertToServicePlayer(TicTacShowPlayer player) {
-
-        ServicePlayer servicePlayer = new ServicePlayer();
-        servicePlayer.setPlayerName(player.getPlayerId().getPlayerName());
-        servicePlayer.setVip(player.getVip());
-        return servicePlayer;
-    }
-
     private AbstractServiceControllerState getControllerStageState(Player player, TicTacShowState state) {
 
         AbstractServiceControllerState controllerState;
@@ -124,6 +116,7 @@ public class StateServiceImpl implements StateService {
         } else {
             controllerState = getControllerMainState(player, state);
         }
+        controllerState.setPlayer(convertToServicePlayer((TicTacShowPlayer) player));
         return controllerState;
     }
 
@@ -133,9 +126,17 @@ public class StateServiceImpl implements StateService {
         return controllerState;
     }
 
-    private ControllerLobyState getControllerLobbyState(Player player, TicTacShowState state) {
+    private ControllerLobbyState getControllerLobbyState(Player player, TicTacShowState state) {
 
-        ControllerLobyState controllerState = new ControllerLobyState();
+        ControllerLobbyState controllerState = new ControllerLobbyState();
         return controllerState;
+    }
+
+    private ServicePlayer convertToServicePlayer(TicTacShowPlayer player) {
+
+        ServicePlayer servicePlayer = new ServicePlayer();
+        servicePlayer.setPlayerName(player.getPlayerId().getPlayerName());
+        servicePlayer.setVip(player.getVip());
+        return servicePlayer;
     }
 }

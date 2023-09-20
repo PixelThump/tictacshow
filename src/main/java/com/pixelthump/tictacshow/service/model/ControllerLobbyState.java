@@ -4,6 +4,6 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ControllerLobyState extends AbstractServiceControllerState {
+public class ControllerLobbyState extends AbstractServiceControllerState {
 
 }

@@ -10,7 +10,7 @@ import com.pixelthump.tictacshow.repository.model.Team;
 import com.pixelthump.tictacshow.repository.model.TicTacShowPlayer;
 import com.pixelthump.tictacshow.repository.model.TicTacShowStage;
 import com.pixelthump.tictacshow.repository.model.TicTacShowState;
-import com.pixelthump.tictacshow.service.model.ControllerLobyState;
+import com.pixelthump.tictacshow.service.model.ControllerLobbyState;
 import com.pixelthump.tictacshow.service.model.ControllerMainState;
 import com.pixelthump.tictacshow.service.model.ServiceHostLobbyState;
 import com.pixelthump.tictacshow.service.model.ServiceHostMainState;
@@ -150,15 +150,22 @@ class StateServiceImplTest {
         Player player = state.getPlayers().get(0);
         AbstractServiceState result = stateService.getControllerState(player, state);
         assertEquals(result.getSeshCode(), state.getSeshCode());
-        assertEquals(ControllerLobyState.class, result.getClass());
+        assertEquals(ControllerLobbyState.class, result.getClass());
+        ControllerLobbyState castedResult = (ControllerLobbyState) result;
+        assertEquals(player.getPlayerId().getPlayerName(), castedResult.getPlayer().getPlayerName());
+        assertTrue(castedResult.getPlayer().isVip());
     }
     @Test
     void getControllerState_Main() {
 
         TicTacShowState state = getMainState();
-        AbstractServiceState result = stateService.getControllerState(state.getPlayers().get(0), state);
+        Player player = state.getPlayers().get(0);
+        AbstractServiceState result = stateService.getControllerState(player, state);
         assertEquals(result.getSeshCode(), state.getSeshCode());
         assertEquals(ControllerMainState.class, result.getClass());
+        ControllerMainState castedResult = (ControllerMainState) result;
+        assertEquals(player.getPlayerId().getPlayerName(), castedResult.getPlayer().getPlayerName());
+        assertTrue(castedResult.getPlayer().isVip());
     }
 
     @NotNull

@@ -7,5 +7,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class AbstractServiceControllerState extends AbstractServiceState {
 
-    private String playerName;
+    private ServicePlayer player;
 }
