@@ -3,6 +3,7 @@ import com.pixelthump.seshtypelib.repository.CommandRespository;
 import com.pixelthump.seshtypelib.repository.model.command.Command;
 import com.pixelthump.seshtypelib.service.GameLogicService;
 import com.pixelthump.seshtypelib.service.model.State;
+import com.pixelthump.seshtypelib.service.model.player.Player;
 import com.pixelthump.tictacshow.repository.TicTacShowStateRepository;
 import com.pixelthump.tictacshow.repository.model.Team;
 import com.pixelthump.tictacshow.repository.model.TicTacShowPlayer;
@@ -53,6 +54,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processCommand(Command command, TicTacShowState state) {
 
+        if (!state.isHostJoined()) throw new RuntimeException();
         if (state.getCurrentStage().equals(TicTacShowStage.LOBBY)) {
             processLobbyCommand(command, state);
         } else if (state.getCurrentStage().equals(TicTacShowStage.MAIN)) {
@@ -69,6 +71,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
         if ("startSesh".equals(command.getType())) processStartSeshCommand(command, state);
         if ("joinTeam".equals(command.getType())) processJoinTeamCommand(command, state);
+        if ("makeVip".equals(command.getType())) processMakeVipCommand(command, state);
     }
 
     private void processStartSeshCommand(Command command, TicTacShowState state) {
@@ -79,15 +82,8 @@ public class GameLogicServiceImpl implements GameLogicService {
         state.setCurrentStage(TicTacShowStage.MAIN);
     }
 
-    private boolean allPlayersJoinedTeams(TicTacShowState state) {
-
-        List<TicTacShowPlayer> playersInTeams = new ArrayList<>();
-        playersInTeams.addAll(state.getTeamX().getTicTacShowPlayers());
-        playersInTeams.addAll(state.getTeamO().getTicTacShowPlayers());
-        return playersInTeams.size() == state.getPlayers().size();
-    }
-
     private void processJoinTeamCommand(Command command, TicTacShowState state) {
+
         String playerName = command.getPlayerName();
         if (!playerIsJoined(playerName, state)) throw new RuntimeException();
 
@@ -100,6 +96,39 @@ public class GameLogicServiceImpl implements GameLogicService {
         TicTacShowPlayer joiningPlayer = joiningPlayerOptional.get();
         if (teamNameToJoin.equals("X")) state.getTeamX().addPlayer(joiningPlayer);
         else state.addPlayerToTeam(joiningPlayer, teamNameToJoin);
+    }
+
+    private void processMakeVipCommand(Command command, TicTacShowState state) {
+
+        boolean hasVip = hasVip(state);
+        boolean isVip = isVip(command.getPlayerName(), state);
+
+        if (hasVip && !isVip) throw new RuntimeException();
+        if (hasVip) removeVip(state);
+
+        String newVipName = command.getBody();
+        Optional<TicTacShowPlayer> newVipOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(newVipName)).map(TicTacShowPlayer.class::cast).findFirst();
+        if (newVipOptional.isEmpty()) throw new RuntimeException();
+        TicTacShowPlayer newVip = newVipOptional.get();
+        newVip.setVip(true);
+    }
+
+    private void removeVip(TicTacShowState state) {
+
+        state.getPlayers().forEach(player -> player.setVip(false));
+    }
+
+    private boolean hasVip(TicTacShowState state) {
+
+        return state.getPlayers().stream().anyMatch(Player::getVip);
+    }
+
+    private boolean allPlayersJoinedTeams(TicTacShowState state) {
+
+        List<TicTacShowPlayer> playersInTeams = new ArrayList<>();
+        playersInTeams.addAll(state.getTeamX().getTicTacShowPlayers());
+        playersInTeams.addAll(state.getTeamO().getTicTacShowPlayers());
+        return playersInTeams.size() == state.getPlayers().size();
     }
 
     private boolean teamIsJoinable(String teamNameToJoin, TicTacShowState state) {
