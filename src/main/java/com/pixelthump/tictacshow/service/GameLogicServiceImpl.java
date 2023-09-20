@@ -126,8 +126,8 @@ public class GameLogicServiceImpl implements GameLogicService {
     private boolean allPlayersJoinedTeams(TicTacShowState state) {
 
         List<TicTacShowPlayer> playersInTeams = new ArrayList<>();
-        playersInTeams.addAll(state.getTeamX().getTicTacShowPlayers());
-        playersInTeams.addAll(state.getTeamO().getTicTacShowPlayers());
+        playersInTeams.addAll(state.getTeamX().getPlayers());
+        playersInTeams.addAll(state.getTeamO().getPlayers());
         return playersInTeams.size() == state.getPlayers().size();
     }
 
@@ -142,7 +142,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (teamNameToJoin.equals("X")) opponentTeam = state.getTeamO();
         else opponentTeam = state.getTeamX();
 
-        int teamSizeDifference = team.getTicTacShowPlayers().size() - opponentTeam.getTicTacShowPlayers().size();
+        int teamSizeDifference = team.getPlayers().size() - opponentTeam.getPlayers().size();
         return teamSizeDifference == 0;
     }
 

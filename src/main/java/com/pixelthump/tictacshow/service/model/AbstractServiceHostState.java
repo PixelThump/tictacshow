@@ -7,4 +7,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class AbstractServiceHostState extends AbstractServiceState {
 
+    private ServiceTeam teamX;
+    private ServiceTeam teamO;
 }

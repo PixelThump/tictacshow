@@ -4,9 +4,11 @@ import com.pixelthump.seshtypelib.service.model.State;
 import com.pixelthump.seshtypelib.service.model.messaging.AbstractServiceState;
 import com.pixelthump.seshtypelib.service.model.player.Player;
 import com.pixelthump.tictacshow.repository.TicTacShowStateRepository;
+import com.pixelthump.tictacshow.repository.model.TicTacShowPlayer;
 import com.pixelthump.tictacshow.repository.model.TicTacShowStage;
 import com.pixelthump.tictacshow.repository.model.TicTacShowState;
 import com.pixelthump.tictacshow.service.model.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +19,13 @@ import java.util.Optional;
 public class StateServiceImpl implements StateService {
 
     private final TicTacShowStateRepository stateRepository;
+    private final ModelMapper mapper;
 
     @Autowired
-    public StateServiceImpl(TicTacShowStateRepository stateRepository) {
+    public StateServiceImpl(TicTacShowStateRepository stateRepository, ModelMapper mapper) {
 
         this.stateRepository = stateRepository;
+        this.mapper = mapper;
     }
 
     @Override
@@ -80,6 +84,11 @@ public class StateServiceImpl implements StateService {
         } else {
             hostState = getHostMainState(state);
         }
+
+        ServiceTeam teamX = mapper.map(state.getTeamX(), ServiceTeam.class);
+        hostState.setTeamX(teamX);
+        ServiceTeam teamO = mapper.map(state.getTeamO(), ServiceTeam.class);
+        hostState.setTeamO(teamO);
         return hostState;
     }
 
@@ -92,7 +101,18 @@ public class StateServiceImpl implements StateService {
     private AbstractServiceHostState getHostLobbyState(TicTacShowState state) {
 
         ServiceHostLobbyState hostState = new ServiceHostLobbyState();
+        List<ServicePlayer> players = state.getPlayers().stream().map(TicTacShowPlayer.class::cast).map(this::convertToServicePlayer).toList();
+        hostState.setPlayers(players);
+        hostState.setHasVip(players.stream().anyMatch(ServicePlayer::isVip));
         return hostState;
+    }
+
+    private ServicePlayer convertToServicePlayer(TicTacShowPlayer player) {
+
+        ServicePlayer servicePlayer = new ServicePlayer();
+        servicePlayer.setPlayerName(player.getPlayerId().getPlayerName());
+        servicePlayer.setVip(player.getVip());
+        return servicePlayer;
     }
 
     private AbstractServiceControllerState getControllerStageState(Player player, TicTacShowState state) {

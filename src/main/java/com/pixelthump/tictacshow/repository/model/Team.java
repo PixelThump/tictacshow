@@ -17,30 +17,15 @@ public class Team implements Serializable {
     @Column(name = "id", nullable = false)
     private Long id;
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TicTacShowPlayer> ticTacShowPlayers = new ArrayList<>();
+    private List<TicTacShowPlayer> players = new ArrayList<>();
 
 
     public void addPlayer(TicTacShowPlayer player){
-        ticTacShowPlayers.add(player);
+        players.add(player);
     }
 
-    public List<TicTacShowPlayer> getTicTacShowPlayers() {
+    public List<TicTacShowPlayer> getPlayers() {
 
-        return ticTacShowPlayers;
-    }
-
-    public void setTicTacShowPlayers(List<TicTacShowPlayer> ticTacShowPlayers) {
-
-        this.ticTacShowPlayers = ticTacShowPlayers;
-    }
-
-    public Long getId() {
-
-        return id;
-    }
-
-    public void setId(Long id) {
-
-        this.id = id;
+        return players;
     }
 }

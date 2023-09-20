@@ -117,8 +117,8 @@ class GameLogicServiceImplTest {
 
         TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
 
-        assertTrue(result.getTeamX().getTicTacShowPlayers().contains(vip));
-        assertEquals(1, result.getTeamX().getTicTacShowPlayers().size());
+        assertTrue(result.getTeamX().getPlayers().contains(vip));
+        assertEquals(1, result.getTeamX().getPlayers().size());
     }
 
     @Test
@@ -140,10 +140,10 @@ class GameLogicServiceImplTest {
 
         TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
 
-        assertTrue(result.getTeamX().getTicTacShowPlayers().contains(vip));
-        assertFalse(result.getTeamX().getTicTacShowPlayers().contains(player1));
-        assertEquals(1, result.getTeamX().getTicTacShowPlayers().size());
-        assertEquals(0, result.getTeamO().getTicTacShowPlayers().size());
+        assertTrue(result.getTeamX().getPlayers().contains(vip));
+        assertFalse(result.getTeamX().getPlayers().contains(player1));
+        assertEquals(1, result.getTeamX().getPlayers().size());
+        assertEquals(0, result.getTeamO().getPlayers().size());
     }
 
     @Test
@@ -160,8 +160,8 @@ class GameLogicServiceImplTest {
 
         TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
 
-        assertTrue(result.getTeamO().getTicTacShowPlayers().contains(vip));
-        assertEquals(1, result.getTeamO().getTicTacShowPlayers().size());
+        assertTrue(result.getTeamO().getPlayers().contains(vip));
+        assertEquals(1, result.getTeamO().getPlayers().size());
     }
 
     @Test
@@ -183,10 +183,10 @@ class GameLogicServiceImplTest {
 
         TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
 
-        assertTrue(result.getTeamO().getTicTacShowPlayers().contains(vip));
-        assertFalse(result.getTeamO().getTicTacShowPlayers().contains(player1));
-        assertEquals(1, result.getTeamO().getTicTacShowPlayers().size());
-        assertEquals(0, result.getTeamX().getTicTacShowPlayers().size());
+        assertTrue(result.getTeamO().getPlayers().contains(vip));
+        assertFalse(result.getTeamO().getPlayers().contains(player1));
+        assertEquals(1, result.getTeamO().getPlayers().size());
+        assertEquals(0, result.getTeamX().getPlayers().size());
     }
 
     @Test
@@ -273,8 +273,8 @@ class GameLogicServiceImplTest {
 
         TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
 
-        assertEquals(0, result.getTeamO().getTicTacShowPlayers().size());
-        assertEquals(0, result.getTeamX().getTicTacShowPlayers().size());
+        assertEquals(0, result.getTeamO().getPlayers().size());
+        assertEquals(0, result.getTeamX().getPlayers().size());
     }
 
     private Command getJoinTeamCommand(TicTacShowPlayer vip, String team) {

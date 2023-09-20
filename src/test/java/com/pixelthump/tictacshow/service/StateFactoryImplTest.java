@@ -51,8 +51,8 @@ class StateFactoryImplTest {
     private static void verifyTeams(TicTacShowState result) {
 
         assertNotNull(result.getTeamO());
-        assertEquals(0, result.getTeamO().getTicTacShowPlayers().size());
+        assertEquals(0, result.getTeamO().getPlayers().size());
         assertNotNull(result.getTeamX());
-        assertEquals(0, result.getTeamX().getTicTacShowPlayers().size());
+        assertEquals(0, result.getTeamX().getPlayers().size());
     }
 }
