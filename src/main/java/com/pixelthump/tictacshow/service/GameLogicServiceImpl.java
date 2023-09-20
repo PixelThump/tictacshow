@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Log4j2
@@ -90,11 +91,16 @@ public class GameLogicServiceImpl implements GameLogicService {
     private void processJoinTeamCommand(Command command, TicTacShowState state) {
         String playerName = command.getPlayerName();
         if (!playerIsJoined(playerName, state)) throw new RuntimeException();
+
         String teamNameToJoin = command.getBody();
         if (!teamIsJoinable(teamNameToJoin, state)) throw new RuntimeException();
-        TicTacShowPlayer joiningPlayer = (TicTacShowPlayer) state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(playerName)).findFirst().get();
+
+        Optional<TicTacShowPlayer> joiningPlayerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(playerName)).map(TicTacShowPlayer.class::cast).findFirst();
+        if (joiningPlayerOptional.isEmpty()) throw new RuntimeException();
+
+        TicTacShowPlayer joiningPlayer = joiningPlayerOptional.get();
         if (teamNameToJoin.equals("X")) state.getTeamX().addPlayer(joiningPlayer);
-        else state.getTeamO().addPlayer(joiningPlayer);
+        else state.addPlayerToTeam(joiningPlayer, teamNameToJoin);
     }
 
     private boolean teamIsJoinable(String teamNameToJoin, TicTacShowState state) {

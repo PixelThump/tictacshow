@@ -36,4 +36,11 @@ public class TicTacShowState extends State {
 
         return getClass().hashCode();
     }
+
+    public void addPlayerToTeam(TicTacShowPlayer joiningPlayer, String teamNameToJoin) {
+
+        if ("X".equals(teamNameToJoin)) teamX.addPlayer(joiningPlayer);
+        else if ("O".equals(teamNameToJoin))teamO.addPlayer(joiningPlayer);
+        else throw new RuntimeException();
+    }
 }
