@@ -38,7 +38,6 @@ public class GameLogicServiceImpl implements GameLogicService {
         List<Command> processedCommands = new ArrayList<>();
 
         for (Command command : commands) {
-
             try {
                 processCommand(command, state);
                 processedCommands.add(command);
