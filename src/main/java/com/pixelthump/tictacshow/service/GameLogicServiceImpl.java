@@ -117,7 +117,7 @@ public class GameLogicServiceImpl implements GameLogicService {
     private void processLeaveTeamCommand(Command command, TicTacShowState state){
 
         String PlayerName = command.getPlayerName();
-        Optional<TicTacShowPlayer> playerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(newVipName)).map(TicTacShowPlayer.class::cast).findFirst();
+        Optional<TicTacShowPlayer> playerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(PlayerName)).map(TicTacShowPlayer.class::cast).findFirst();
         if(playerOptional.isEmpty()) throw new RuntimeException();
         TicTacShowPlayer player = playerOptional.get();
         state.removePlayerFromTeam(player);
