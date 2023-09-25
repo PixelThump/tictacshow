@@ -50,6 +50,6 @@ public class TicTacShowState extends State {
         if (teamX.equals(leavingPlayer.getTeam())) team = teamX;
         else if (teamO.equals(leavingPlayer.getTeam())) team = teamO;
         else throw new RuntimeException();
-        if(!team.getPlayers.remove(leavingPlayer)) throw new RuntimeException();
+        if(!team.getPlayers().remove(leavingPlayer)) throw new RuntimeException();
     }
 }
