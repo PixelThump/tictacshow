@@ -72,6 +72,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         if ("startSesh".equals(command.getType())) processStartSeshCommand(command, state);
         if ("joinTeam".equals(command.getType())) processJoinTeamCommand(command, state);
         if ("makeVip".equals(command.getType())) processMakeVipCommand(command, state);
+        if("leaveTeam".equals(command.getType())) processLeaveTeamCommand(command, state);
     }
 
     private void processStartSeshCommand(Command command, TicTacShowState state) {
@@ -88,7 +89,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (!playerIsJoined(playerName, state)) throw new RuntimeException();
 
         String teamNameToJoin = command.getBody();
-        if (!teamIsJoinable(teamNameToJoin, state)) throw new RuntimeException();
+        else if (!teamIsJoinable(teamNameToJoin, state)) throw new RuntimeException();
 
         Optional<TicTacShowPlayer> joiningPlayerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(playerName)).map(TicTacShowPlayer.class::cast).findFirst();
         if (joiningPlayerOptional.isEmpty()) throw new RuntimeException();
@@ -111,6 +112,15 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (newVipOptional.isEmpty()) throw new RuntimeException();
         TicTacShowPlayer newVip = newVipOptional.get();
         newVip.setVip(true);
+    }
+
+    private void processLeaveTeamCommand(Command command, TicTacShowState state){
+
+        String PlayerName = command.getPlayerName();
+        Optional<TicTacShowPlayer> playerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(newVipName)).map(TicTacShowPlayer.class::cast).findFirst();
+        if(playerOptional.isEmpty()) throw new Runtimeexception();
+        TicTacShowPlayer player = playerOptional.get();
+        state.removePlayerFromTeam(player);
     }
 
     private void removeVip(TicTacShowState state) {
