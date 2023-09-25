@@ -89,7 +89,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (!playerIsJoined(playerName, state)) throw new RuntimeException();
 
         String teamNameToJoin = command.getBody();
-        else if (!teamIsJoinable(teamNameToJoin, state)) throw new RuntimeException();
+        if (!teamIsJoinable(teamNameToJoin, state)) throw new RuntimeException();
 
         Optional<TicTacShowPlayer> joiningPlayerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(playerName)).map(TicTacShowPlayer.class::cast).findFirst();
         if (joiningPlayerOptional.isEmpty()) throw new RuntimeException();
