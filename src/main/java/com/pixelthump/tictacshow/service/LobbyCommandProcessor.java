@@ -36,6 +36,7 @@ public class LobbyCommandProcessor implements CommandProcessor {
 		if ("joinTeam".equals(command.getType())) processJoinTeamCommand(command, state);
 		if ("makeVip".equals(command.getType())) processMakeVipCommand(command, state);
 		if ("leaveTeam".equals(command.getType())) processLeaveTeamCommand(command, state);
+		return state;
 	}
 
 	private void processStartSeshCommand(Command command, TicTacShowState state) {
