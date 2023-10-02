@@ -31,6 +31,8 @@ class GameLogicServiceImplTest {
     TicTacShowStateRepository stateRepository;
     @MockBean
     CommandRespository commandRespository;
+    @Mockbean
+    LobbyCommandProcessor lobbyCommandProcessor;
     @Autowired
     GameLogicService gameLogicService;
     String seshCode = "abcd";
@@ -47,6 +49,36 @@ class GameLogicServiceImplTest {
         inOrder.verify(stateRepository, times(1)).findBySeshCode(state.getSeshCode());
         inOrder.verify(commandRespository, times(1)).findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode());
         inOrder.verify(commandRespository, times(1)).deleteAll(commands);
+    }
+
+    @Test
+    void processQueue_shouldCallLobbyCommandProcessor(){
+
+        TicTacShowState state = getLobbyState(seshCode);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command lobbyCommand = new Command();
+        List<Command> commands = Collections.singletonList(lobbyCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+        when(lobbyCommandProcessor.processCommand(lobbyCommand, state)).thenReturn(state);
+        gameLogicService.processQueue(seshCode);
+        verify(lobbyCommandProcessor, times(1)).processCommand(lobbyCommand, state);
+    }
+
+    @Test
+    void processQueue_vipStartSesh_setHasChanged() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command lobbyCommand = new Command();
+        List<Command> commands = Collections.singletonList(startSeshCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+        when(lobbyCommandProcessor.processCommand(lobbyCommand, state)).thenReturn(state);
+
+        State result = gameLogicService.processQueue(seshCode);
+
+        assertTrue(result.getHasChanged());
     }
 
     @Test
@@ -275,6 +307,34 @@ class GameLogicServiceImplTest {
 
         assertEquals(0, result.getTeamO().getPlayers().size());
         assertEquals(0, result.getTeamX().getPlayers().size());
+    }
+
+    @Test
+    void processQueue_shouldNotJoinTeamO() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        TicTacShowPlayer vip = getVip(state);
+        state.getPlayers().add(vip);
+        state.getTeamO().addPlayer(vip);
+        vip.setTeam(state.getTeamO());
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command leaveTeamCommand = getLeaveTeamCommand(vip);
+        List<Command> commands = Collections.singletonList(joinTeamCommandVip);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+
+        TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
+
+        assertEquals(0, result.getTeamO().getPlayers().size());
+        assertEquals(0, result.getTeamX().getPlayers().size());
+    }
+
+    private Command getLeaveTeamCommand(TicTacShowPlayer player) {
+
+        Command command = new Command();
+        command.setType("leaveTeam");
+        command.setPlayerName(player.getPlayerName());
+        return command;
     }
 
     private Command getJoinTeamCommand(TicTacShowPlayer vip, String team) {
