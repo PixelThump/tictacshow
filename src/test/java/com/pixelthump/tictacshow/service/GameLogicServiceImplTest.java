@@ -31,7 +31,7 @@ class GameLogicServiceImplTest {
     TicTacShowStateRepository stateRepository;
     @MockBean
     CommandRespository commandRespository;
-    @Mockbean
+    @MockBean
     LobbyCommandProcessor lobbyCommandProcessor;
     @Autowired
     GameLogicService gameLogicService;
