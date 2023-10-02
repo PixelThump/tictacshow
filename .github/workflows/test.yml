@@ -12,7 +12,7 @@ on:
   push:
     branches: [ "!master" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "develop" ]
     
 jobs:
   run_tests_and_add_coverage_to_pull_request:
@@ -40,6 +40,6 @@ jobs:
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 35
+          min-coverage-overall: 80
           title: Coverage
           update-comment: true
