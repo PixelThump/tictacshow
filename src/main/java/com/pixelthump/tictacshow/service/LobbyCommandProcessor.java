@@ -30,7 +30,7 @@ import java.util.Optional;
 @Component
 @Log4j2
 public class LobbyCommandProcessor implements CommandProcessor {
-	private void processLobbyCommand(Command command, TicTacShowState state) {
+	private void processCommand(Command command, TicTacShowState state) {
 
 		if ("startSesh".equals(command.getType())) processStartSeshCommand(command, state);
 		if ("joinTeam".equals(command.getType())) processJoinTeamCommand(command, state);
