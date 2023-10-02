@@ -72,7 +72,7 @@ class GameLogicServiceImplTest {
         when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
 
         Command lobbyCommand = new Command();
-        List<Command> commands = Collections.singletonList(startSeshCommand);
+        List<Command> commands = Collections.singletonList(lobbyCommand);
         when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
         when(lobbyCommandProcessor.processCommand(lobbyCommand, state)).thenReturn(state);
 
