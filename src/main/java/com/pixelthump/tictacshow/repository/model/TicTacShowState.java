@@ -43,4 +43,13 @@ public class TicTacShowState extends State {
         else if ("O".equals(teamNameToJoin))teamO.addPlayer(joiningPlayer);
         else throw new RuntimeException();
     }
+
+    public void removePlayerFromTeam(TicTacShowPlayer leavingPlayer){
+
+        Team team;
+        if (teamX.equals(leavingPlayer.getTeam())) team = teamX;
+        else if (teamO.equals(leavingPlayer.getTeam())) team = teamO;
+        else throw new RuntimeException();
+        if(!team.getPlayers().remove(leavingPlayer)) throw new RuntimeException();
+    }
 }

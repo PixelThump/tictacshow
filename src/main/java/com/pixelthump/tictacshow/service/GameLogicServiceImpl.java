@@ -72,6 +72,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         if ("startSesh".equals(command.getType())) processStartSeshCommand(command, state);
         if ("joinTeam".equals(command.getType())) processJoinTeamCommand(command, state);
         if ("makeVip".equals(command.getType())) processMakeVipCommand(command, state);
+        if("leaveTeam".equals(command.getType())) processLeaveTeamCommand(command, state);
     }
 
     private void processStartSeshCommand(Command command, TicTacShowState state) {
@@ -111,6 +112,15 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (newVipOptional.isEmpty()) throw new RuntimeException();
         TicTacShowPlayer newVip = newVipOptional.get();
         newVip.setVip(true);
+    }
+
+    private void processLeaveTeamCommand(Command command, TicTacShowState state){
+
+        String PlayerName = command.getPlayerName();
+        Optional<TicTacShowPlayer> playerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(PlayerName)).map(TicTacShowPlayer.class::cast).findFirst();
+        if(playerOptional.isEmpty()) throw new RuntimeException();
+        TicTacShowPlayer player = playerOptional.get();
+        state.removePlayerFromTeam(player);
     }
 
     private void removeVip(TicTacShowState state) {
