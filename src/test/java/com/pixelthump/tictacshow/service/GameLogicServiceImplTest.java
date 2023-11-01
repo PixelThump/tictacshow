@@ -249,16 +249,6 @@ class GameLogicServiceImplTest {
         assertTrue(result.getHasChanged());
     }
 
-    private Command getMakeVipCommand(String executingPlayer, String targetPlayer) {
-
-        Command command = new Command();
-        command.setPlayerName(executingPlayer);
-        command.setBody(targetPlayer);
-        command.setType("makeVip");
-
-        return command;
-    }
-
     @Test
     void processQueue_UnKnownTeam_shouldNotJoinTeamO() {
 
@@ -275,6 +265,44 @@ class GameLogicServiceImplTest {
 
         assertEquals(0, result.getTeamO().getPlayers().size());
         assertEquals(0, result.getTeamX().getPlayers().size());
+    }
+
+    @Test
+    void processQueue_leaveTeam_shouldleaveTeam() {
+
+        TicTacShowState state = getLobbyState(seshCode);
+        TicTacShowPlayer vip = getVip(state);
+        state.getPlayers().add(vip);
+        vip.setTeam(state.getTeamO());
+        state.getTeamO().addPlayer(vip);
+        when(stateRepository.findBySeshCode(state.getSeshCode())).thenReturn(state);
+
+        Command leaveTeamCommand = getLeaveTeamCommand(vip);
+        List<Command> commands = Collections.singletonList(leaveTeamCommand);
+        when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode())).thenReturn(commands);
+
+        TicTacShowState result = (TicTacShowState) gameLogicService.processQueue(state.getSeshCode());
+
+        assertEquals(0, result.getTeamO().getPlayers().size());
+        assertEquals(0, result.getTeamX().getPlayers().size());
+    }
+
+    private Command getLeaveTeamCommand(TicTacShowPlayer player) {
+
+        Command command = new Command();
+        command.setType("leaveTeam");
+        command.setPlayerName(player.getPlayerId().getPlayerName());
+        return command;
+    }
+
+    private Command getMakeVipCommand(String executingPlayer, String targetPlayer) {
+
+        Command command = new Command();
+        command.setPlayerName(executingPlayer);
+        command.setBody(targetPlayer);
+        command.setType("makeVip");
+
+        return command;
     }
 
     private Command getJoinTeamCommand(TicTacShowPlayer vip, String team) {

@@ -45,7 +45,7 @@ public class GameLogicServiceImpl implements GameLogicService {
                 state.setHasChanged(true);
             } catch (Exception e) {
                 processedCommands.add(command);
-                log.warn("Unable to process command={}", command);
+                log.warn("Unable to process command={}, error={}", command, e);
             }
         }
         commandRespository.deleteAll(processedCommands);
@@ -116,8 +116,8 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processLeaveTeamCommand(Command command, TicTacShowState state){
 
-        String PlayerName = command.getPlayerName();
-        Optional<TicTacShowPlayer> playerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(PlayerName)).map(TicTacShowPlayer.class::cast).findFirst();
+        String playerName = command.getPlayerName();
+        Optional<TicTacShowPlayer> playerOptional = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(playerName)).map(TicTacShowPlayer.class::cast).findFirst();
         if(playerOptional.isEmpty()) throw new RuntimeException();
         TicTacShowPlayer player = playerOptional.get();
         state.removePlayerFromTeam(player);
